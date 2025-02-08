@@ -616,6 +616,13 @@ function applyFilters() {
 
   currentFilters = { camera, mese, nome };
 
+  // Imposta la vista del calendario al mese selezionato
+  if (mese !== '') {
+    const currentYear = new Date().getFullYear();
+    const selectedDate = new Date(currentYear, parseInt(mese), 1);
+    calendar.gotoDate(selectedDate);
+  }
+
   const events = calendar.getEvents();
   events.forEach(event => {
     if (event.extendedProps.isHoliday) return;
@@ -627,8 +634,8 @@ function applyFilters() {
     }
     
     if (mese !== '') {
-      const eventMonth = new Date(event.start).getMonth().toString();
-      if (eventMonth !== mese) {
+      const eventMonth = new Date(event.start).getMonth();
+      if (eventMonth !== parseInt(mese)) {
         visible = false;
       }
     }
