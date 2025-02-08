@@ -4,397 +4,896 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>B&B IL BORGO - Calendario</title>
+  
+  <!-- FullCalendar bundle -->
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+  
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
+      padding: 20px;
       background-color: #f4f4f4;
     }
     .container {
-      max-width: 800px;
-      margin: 20px auto;
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .title {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      line-height: 1.4;
+    }
+    #calendar {
+      margin-top: 20px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white;
+      width: 90%;
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 20px;
+      border-radius: 10px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .buttons {
+      text-align: right;
+      margin-top: 20px;
+    }
+    button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    .save-btn {
+      background: #4CAF50;
+      color: white;
+    }
+    .cancel-btn {
+      background: #f44336;
+      color: white;
+    }
+    .delete-btn {
+      background: #f44336;
+      color: white;
+      float: left;
+    }
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin: 5px;
+    }
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      margin-right: 5px;
+      border-radius: 3px;
+    }
+    .fc-event {
+      cursor: pointer;
+    }
+    .bookings-list {
+      margin-top: 30px;
       padding: 20px;
       background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      text-align: center;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-    .header {
+    .booking-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
-    }
-    .header h1 {
-      font-size: 24px;
-    }
-    .subtitle {
-      font-size: 16px;
-      color: #666;
-      margin-bottom: 5px;
-    }
-    .title {
-      font-size: 36px;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
-    button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 5px;
-      text-align: center;
-    }
-    .day {
-      padding: 10px;
-      background: #fff;
-      border: 1px solid #ddd;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-    .day:hover {
-      background-color: #007bff;
-      color: white;
-    }
-    .selected {
-      background-color: #007bff;
-      color: white;
-    }
-    .weekend {
-      color: red;
-    }
-    .holiday {
-      background-color: red;
-      color: white;
-    }
-    .check-label {
-      background: #f8f9fa;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      color: #666;
-      display: inline-block;
-      margin-bottom: 5px;
-    }
-    .details {
-      margin-top: 20px;
-    }
-    .details input, .details select {
-      width: 100%;
-      padding: 8px;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
       margin-bottom: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
     }
-    .details button {
-      width: 100%;
+    .booking-info {
+      flex: 1;
     }
-    .error {
-      color: red;
-      margin-top: 10px;
-    }
-    .reservations {
-      margin-top: 30px;
-      background: #f9f9f9;
-      padding: 10px;
-      border-radius: 5px;
-    }
-    .reservation {
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-    }
-    .reservation:last-child {
-      border-bottom: none;
-    }
-    .filters {
+    .booking-actions {
       display: flex;
       gap: 10px;
-      justify-content: center;
-      margin-bottom: 20px;
     }
-    .filters select {
-      padding: 5px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
+    .edit-btn {
+      background: #2196F3;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
     }
-    .services-group {
-      margin: 15px 0;
-      text-align: left;
+    .booking-camera {
+      font-weight: bold;
+      margin-bottom: 5px;
     }
-    .service-item {
+    .booking-dates {
+      color: #666;
+      font-size: 0.9em;
+    }
+    .booking-guest {
+      color: #444;
+      margin-top: 5px;
+    }
+    .fc .fc-button-primary {
+      background-color: #4CAF50;
+      border-color: #4CAF50;
+    }
+    .fc .fc-button-primary:hover {
+      background-color: #45a049;
+      border-color: #45a049;
+    }
+    .fc .fc-daygrid-day:hover {
+      background-color: #f8f9fa;
+    }
+    .error {
+      color: #f44336;
       margin: 10px 0;
+      display: none;
     }
-    .service-item input[type="checkbox"] {
-      margin-right: 10px;
+    .notes-section {
+      margin-top: 10px;
     }
+    .notes-section textarea {
+      width: 100%;
+      height: 100px;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      resize: vertical;
+    }
+.filters {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-group label {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.filter-group select,
+.filter-group input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  min-width: 150px;
+}
+
+.reset-btn {
+  background: #6c757d;
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.reset-btn:hover {
+  background: #5a6268;
+}
   </style>
+
+  <script>
+    // Configurazione Firebase
+// Configurazione Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyDZQ7wBLcpxwZkLu9xT98xrkKHfzWGLd64",
+  authDomain: "bbnb-30753.firebaseapp.com",
+  projectId: "bbnb-30753",
+  storageBucket: "bbnb-30753.firebasestorage.app",
+  messagingSenderId: "671283493473",
+  appId: "1:671283493473:web:215ae7e3ef6cadc6a9c820",
+  databaseURL: "https://bbnb-30753-default-rtdb.europe-west1.firebasedatabase.app"
+};
+
+// Inizializzazione Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const reservationsRef = db.ref('reservations');
+    // Festività italiane 2025
+    const italianHolidays = [
+      { title: 'Capodanno', start: '2025-01-01', color: 'red', allDay: true, extendedProps: { isHoliday: true } },
+      { title: 'Epifania', start: '2025-01-06', color: 'red', allDay: true, extendedProps: { isHoliday: true } },
+      { title: 'Pasqua', start: '2025-04-20', color: 'red', allDay: true, extendedProps: { isHoliday: true } },
+      { title: 'Pasquetta', start: '2025-04-21', color: 'red', allDay: true, extendedProps: { isHoliday: true } },
+      { title: 'Liberazione', start: '2025-04-25', color: 'red', allDay: true, extendedProps: { isHoliday: true } },
+      { title: 'Festa del Lavoro', start: '2025-05-01', color: 'red', allDay: true, extendedProps: { isHoliday: true } },
+      { title: 'Festa Repubblica', start: '2025-06-02', color: 'red', allDay: true, extendedProps: { isHoliday: true } },
+      { title: 'Ferragosto', start: '2025-08-15', color: 'red', allDay: true, extendedProps: { isHoliday: true } },
+      { title: 'Tutti i Santi', start: '2025-11-01', color: 'red', allDay: true, extendedProps: { isHoliday: true } },
+      { title: 'Immacolata', start: '2025-12-08', color: 'red', allDay: true, extendedProps: { isHoliday: true } },
+      { title: 'Natale', start: '2025-12-25', color: 'red', allDay: true, extendedProps: { isHoliday: true } },
+      { title: 'S.Stefano', start: '2025-12-26', color: 'red', allDay: true, extendedProps: { isHoliday: true } }
+    ];
+
+    let calendar;
+    let currentBookingId = null;
+
+    function getColorForRoom(room) {
+      const colors = {
+        '1': '#4CAF50', // Verde
+        '2': '#2196F3', // Blu
+        '3': '#9C27B0', // Viola
+        '4': '#FF9800'  // Arancione
+      };
+      return colors[room] || '#666';
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+    }
+
+    function hideError() {
+      document.getElementById('errorMessage').style.display = 'none';
+    }
+
+    function formatDate(date) {
+      return date.toISOString().split('T')[0];
+    }
+
+    function formatDateTime(dateString) {
+      const date = new Date(dateString);
+      const formattedDate = date.toLocaleDateString('it-IT');
+      const formattedTime = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+      return { date: formattedDate, time: formattedTime };
+    }
+
+    function combineDateAndTime(date, time) {
+      const dateStr = date;
+      const timeStr = time || '00:00';
+      return `${dateStr}T${timeStr}`;
+    }
+
+    function addNewBooking() {
+      const today = new Date();
+      const tomorrow = new Date();
+      tomorrow.setDate(today.getDate() + 1);
+      openModal(today, tomorrow);
+    }
+
+    function editBooking(event) {
+      const start = event.start || new Date();
+      const end = event.end || new Date();
+      openModal(start, end, event);
+    }
+
+    function openModal(start, end, event = null) {
+      document.getElementById('bookingModal').style.display = 'block';
+      document.getElementById('modalTitle').textContent = event ? 'Modifica Prenotazione' : 'Nuova Prenotazione';
+      document.getElementById('deleteBtn').style.display = event ? 'block' : 'none';
+      
+      document.getElementById('checkIn').value = formatDate(start);
+      document.getElementById('checkOut').value = formatDate(end);
+      
+      if (event) {
+        const checkInTime = new Date(event.start).toTimeString().slice(0,5);
+        const checkOutTime = new Date(event.end).toTimeString().slice(0,5);
+        document.getElementById('checkInTime').value = checkInTime;
+        document.getElementById('checkOutTime').value = checkOutTime;
+        document.getElementById('camera').value = event.extendedProps.camera;
+        document.getElementById('numeroPersone').value = event.extendedProps.numeroPersone;
+        document.getElementById('letto').value = event.extendedProps.letto;
+        document.getElementById('nomeOspite').value = event.extendedProps.nomeOspite || '';
+        document.getElementById('note').value = event.extendedProps.note || '';
+        currentBookingId = event.id;
+      } else {
+        document.getElementById('checkInTime').value = '14:00';
+        document.getElementById('checkOutTime').value = '10:00';
+        document.getElementById('camera').value = '1';
+        document.getElementById('numeroPersone').value = '1';
+        document.getElementById('letto').value = 'matrimoniale';
+        document.getElementById('nomeOspite').value = '';
+        document.getElementById('note').value = '';
+        currentBookingId = null;
+      }
+      
+      hideError();
+    }
+
+    function closeModal() {
+      document.getElementById('bookingModal').style.display = 'none';
+      currentBookingId = null;
+      hideError();
+    }
+
+    function validateBooking(reservation) {
+      const now = new Date();
+      now.setHours(0, 0, 0, 0); // Reset time to start of day for fair comparison
+      
+      const checkInDate = new Date(reservation.checkIn);
+      const checkOutDate = new Date(reservation.checkOut);
+      
+      if (checkInDate < now) {
+        showError('Non è possibile inserire prenotazioni con data passata');
+        return false;
+      }
+
+      if (!reservation.checkIn || !reservation.checkOut || !reservation.camera || 
+          !reservation.numeroPersone || !reservation.letto || !reservation.nomeOspite) {
+        showError('Tutti i campi sono obbligatori eccetto le note');
+        return false;
+      }
+      
+      if (checkInDate >= checkOutDate) {
+        showError('Il check-out deve essere successivo al check-in');
+        return false;
+      }
+
+      const events = calendar.getEvents();
+      const overlap = events.some(event => {
+        if (event.id === currentBookingId || event.extendedProps.isHoliday) return false;
+        if (event.extendedProps.camera !== reservation.camera) return false;
+
+        const eventStart = new Date(event.start);
+        const eventEnd = new Date(event.end);
+        
+        return (checkInDate < eventEnd && checkOutDate > eventStart);
+      });
+
+      if (overlap) {
+        showError('La camera è già prenotata per il periodo selezionato');
+        return false;
+      }
+
+      if (!reservation.nomeOspite.trim()) {
+        showError('Inserire il nome dell\'ospite');
+        return false;
+      }
+
+      return true;
+    }
+
+    function saveBooking() {
+      const checkInDate = document.getElementById('checkIn').value;
+      const checkInTime = document.getElementById('checkInTime').value;
+      const checkOutDate = document.getElementById('checkOut').value;
+      const checkOutTime = document.getElementById('checkOutTime').value;
+
+      const reservation = {
+        checkIn: combineDateAndTime(checkInDate, checkInTime),
+        checkOut: combineDateAndTime(checkOutDate, checkOutTime),
+        camera: document.getElementById('camera').value,
+        numeroPersone: document.getElementById('numeroPersone').value,
+        letto: document.getElementById('letto').value,
+        nomeOspite: document.getElementById('nomeOspite').value.trim(),
+        note: document.getElementById('note').value.trim()
+      };
+
+      if (!validateBooking(reservation)) {
+        return;
+      }
+
+      if (currentBookingId) {
+        db.ref('reservations/' + currentBookingId).set(reservation, (error) => {
+          if (error) {
+            showError('Errore durante il salvataggio: ' + error.message);
+          } else {
+            closeModal();
+          }
+        });
+      } else {
+        reservationsRef.push(reservation, (error) => {
+          if (error) {
+            showError('Errore durante il salvataggio: ' + error.message);
+          } else {
+            closeModal();
+          }
+        });
+      }
+    }
+
+    function deleteBooking() {
+      if (currentBookingId && confirm('Sei sicuro di voler eliminare questa prenotazione?')) {
+        db.ref('reservations/' + currentBookingId).remove((error) => {
+          if (error) {
+            showError('Errore durante l\'eliminazione: ' + error.message);
+          } else {
+            closeModal();
+          }
+        });
+      }
+    }
+
+    function updateBookingsList(reservations) {
+      const bookingsList = document.getElementById('bookingsList');
+      bookingsList.innerHTML = '';
+      
+      // Converti le prenotazioni in array e ordinale per data
+      const reservationsArray = Object.entries(reservations || {}).map(([id, reservation]) => ({
+        id,
+        ...reservation
+      })).sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn));
+
+      // Filtra solo le prenotazioni future o in corso
+      const now = new Date();
+      const activeReservations = reservationsArray.filter(reservation => 
+        new Date(reservation.checkOut) >= now
+      );
+
+      activeReservations.forEach(reservation => {
+        const { date: checkInDate, time: checkInTime } = formatDateTime(reservation.checkIn);
+        const { date: checkOutDate, time: checkOutTime } = formatDateTime(reservation.checkOut);
+        
+        const bookingEl = document.createElement('div');
+        bookingEl.className = 'booking-item';
+        bookingEl.innerHTML = `
+          <div class="booking-info">
+            <div class="booking-camera">Camera ${reservation.camera}</div>
+            <div class="booking-dates">
+              Check-in: ${checkInDate} ${checkInTime}<br>
+              Check-out: ${checkOutDate} ${checkOutTime}
+            </div>
+            <div class="booking-guest">
+              Ospite: ${reservation.nomeOspite}<br>
+              Persone: ${reservation.numeroPersone} - Letto: ${reservation.letto}
+              ${reservation.note ? '<br>Note: ' + reservation.note : ''}
+            </div>
+          </div>
+          <div class="booking-actions">
+            <button class="edit-btn" onclick="editBookingFromList('${reservation.id}')">Modifica</button>
+          </div>
+        `;
+        bookingsList.appendChild(bookingEl);
+      });
+
+      if (activeReservations.length === 0) {
+        bookingsList.innerHTML = '<p>Nessuna prenotazione attiva</p>';
+      }
+    }
+
+    function editBookingFromList(bookingId) {
+      const event = calendar.getEventById(bookingId);
+      if (event) {
+        editBooking(event);
+      }
+    }
+
+    // Inizializzazione calendario quando il DOM è pronto
+    document.addEventListener('DOMContentLoaded', function() {
+      const calendarEl = document.getElementById('calendar');
+      calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'it',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek'
+        },
+        selectable: true,
+        events: italianHolidays,
+        select: function(info) {
+          openModal(info.start, info.end);
+        },
+        eventClick: function(info) {
+          if (!info.event.extendedProps.isHoliday) {
+            editBooking(info.event);
+          }
+        },
+        eventContent: function(arg) {
+          if (!arg.event.extendedProps.isHoliday) {
+            return {
+              html: `<div style="padding: 2px;">
+                <strong>Camera ${arg.event.extendedProps.camera}</strong><br>
+                ${arg.event.extendedProps.nomeOspite || ''}
+              </div>`
+            };
+          }
+        }
+      });
+
+      calendar.render();
+
+      // Carica prenotazioni da Firebase
+      reservationsRef.on('value', (snapshot) => {
+        const reservations = snapshot.val() || {};
+        
+        // Rimuovi tutti gli eventi tranne le festività
+        calendar.getEvents().forEach(event => {
+          if (!event.extendedProps.isHoliday) {
+            event.remove();
+          }
+        });
+
+        // Aggiungi le prenotazioni al calendario
+        Object.entries(reservations).forEach(([id, reservation]) => {
+          calendar.addEvent({
+            id: id,
+            title: `Camera ${reservation.camera}`,
+            start: reservation.checkIn,
+            end: reservation.checkOut,
+            backgroundColor: getColorForRoom(reservation.camera),
+            extendedProps: {
+              camera: reservation.camera,
+              numeroPersone: reservation.numeroPersone,
+              letto: reservation.letto,
+              nomeOspite: reservation.nomeOspite,
+              note: reservation.note
+            }
+          });
+        });
+
+        // Aggiorna la lista delle prenotazioni
+        updateBookingsList(reservations);
+      });
+
+      document.getElementById('filterCamera').addEventListener('change', function(e) {
+        currentFilters.camera = e.target.value;
+        applyFilters();
+      });
+  
+      document.getElementById('filterMese').addEventListener('change', function(e) {
+        currentFilters.mese = e.target.value;
+        applyFilters();
+      });
+  
+      document.getElementById('filterNome').addEventListener('input', function(e) {
+        currentFilters.nome = e.target.value;
+        applyFilters();
+      });
+    });
+
+    // Chiudi modal se si clicca fuori
+    window.onclick = function(event) {
+      const modal = document.getElementById('bookingModal');
+      if (event.target == modal) {
+        closeModal();
+      }
+    }
+let currentFilters = {
+  camera: '',
+  mese: '',
+  nome: ''
+};
+
+function applyFilters() {
+  const camera = document.getElementById('filterCamera').value;
+  const mese = document.getElementById('filterMese').value;
+  const nome = document.getElementById('filterNome').value.toLowerCase();
+
+  currentFilters = { camera, mese, nome };
+
+  const events = calendar.getEvents();
+  events.forEach(event => {
+    if (event.extendedProps.isHoliday) return;
+    
+    let visible = true;
+    
+    if (camera && event.extendedProps.camera !== camera) {
+      visible = false;
+    }
+    
+    if (mese !== '') {
+      const eventMonth = new Date(event.start).getMonth().toString();
+      if (eventMonth !== mese) {
+        visible = false;
+      }
+    }
+    
+    if (nome) {
+      const guestName = (event.extendedProps.nomeOspite || '').toLowerCase();
+      if (!guestName.includes(nome)) {
+        visible = false;
+      }
+    }
+    
+    event.setProp('display', visible ? 'auto' : 'none');
+  });
+
+  updateFilteredBookingsList();
+}
+
+function updateFilteredBookingsList() {
+  const bookingsList = document.getElementById('bookingsList');
+  bookingsList.innerHTML = '';
+  
+  reservationsRef.once('value').then((snapshot) => {
+    const reservations = snapshot.val() || {};
+    let reservationsArray = Object.entries(reservations)
+      .map(([id, reservation]) => ({ id, ...reservation }))
+      .filter(reservation => {
+        if (currentFilters.camera && reservation.camera !== currentFilters.camera) return false;
+        if (currentFilters.mese !== '') {
+          const reservationMonth = new Date(reservation.checkIn).getMonth().toString();
+          if (reservationMonth !== currentFilters.mese) return false;
+        }
+        if (currentFilters.nome) {
+          const guestName = (reservation.nomeOspite || '').toLowerCase();
+          if (!guestName.includes(currentFilters.nome.toLowerCase())) return false;
+        }
+        return true;
+      })
+      .sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn));
+
+    const now = new Date();
+    reservationsArray = reservationsArray.filter(reservation => 
+      new Date(reservation.checkOut) >= now
+    );
+
+    if (reservationsArray.length === 0) {
+      bookingsList.innerHTML = '<p>Nessuna prenotazione trovata</p>';
+      return;
+    }
+
+    reservationsArray.forEach(reservation => {
+      const { date: checkInDate, time: checkInTime } = formatDateTime(reservation.checkIn);
+      const { date: checkOutDate, time: checkOutTime } = formatDateTime(reservation.checkOut);
+      
+      const bookingEl = document.createElement('div');
+      bookingEl.className = 'booking-item';
+      bookingEl.innerHTML = `
+        <div class="booking-info">
+          <div class="booking-camera">Camera ${reservation.camera}</div>
+          <div class="booking-dates">
+            Check-in: ${checkInDate} ${checkInTime}<br>
+            Check-out: ${checkOutDate} ${checkOutTime}
+          </div>
+          <div class="booking-guest">
+            Ospite: ${reservation.nomeOspite}<br>
+            Persone: ${reservation.numeroPersone} - Letto: ${reservation.letto}
+            ${reservation.note ? '<br>Note: ' + reservation.note : ''}
+          </div>
+        </div>
+        <div class="booking-actions">
+          <button class="edit-btn" onclick="editBookingFromList('${reservation.id}')">Modifica</button>
+        </div>
+      `;
+      bookingsList.appendChild(bookingEl);
+    });
+  });
+}
+
+function resetFilters() {
+  document.getElementById('filterCamera').value = '';
+  document.getElementById('filterMese').value = '';
+  document.getElementById('filterNome').value = '';
+  
+  currentFilters = {
+    camera: '',
+    mese: '',
+    nome: ''
+  };
+  
+  calendar.getEvents().forEach(event => {
+    if (!event.extendedProps.isHoliday) {
+      event.setProp('display', 'auto');
+    }
+  });
+
+  updateFilteredBookingsList();
+}
+
+function exportToCalendar() {
+  const checkInDate = document.getElementById('checkIn').value;
+  const checkInTime = document.getElementById('checkInTime').value;
+  const checkOutDate = document.getElementById('checkOut').value;
+  const checkOutTime = document.getElementById('checkOutTime').value;
+  const camera = document.getElementById('camera').value;
+  const nomeOspite = document.getElementById('nomeOspite').value.trim();
+  const numeroPersone = document.getElementById('numeroPersone').value;
+  const letto = document.getElementById('letto').value;
+  const note = document.getElementById('note').value.trim();
+
+  const checkInDateTime = new Date(`${checkInDate}T${checkInTime}`);
+  const checkOutDateTime = new Date(`${checkOutDate}T${checkOutTime}`);
+
+  const event = {
+    title: `Check-in Camera ${camera} - ${nomeOspite}`,
+    start: checkInDateTime,
+    end: checkOutDateTime,
+    description: `Check-in: ${checkInDate} ${checkInTime}\nCheck-out: ${checkOutDate} ${checkOutTime}\nOspite: ${nomeOspite}\nPersone: ${numeroPersone} - Letto: ${letto}\nNote: ${note}`
+  };
+
+  // Create a link to add the event to the user's calendar
+  const calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${formatDateForCalendar(checkInDateTime)}/${formatDateForCalendar(checkOutDateTime)}&details=${encodeURIComponent(event.description)}`;
+
+  window.open(calendarUrl, '_blank');
+}
+
+function formatDateForCalendar(date) {
+  return date.toISOString().replace(/-|:|\.\d+/g, '');
+}
+
+  </script>
 </head>
 <body>
   <div class="container">
-    <div class="subtitle">Prenotazioni</div>
-    <div class="title">B&B IL BORGO</div>
-    <div class="header">
-      <button id="prevMonth">Mese precedente</button>
-      <h1 id="currentMonth"></h1>
-      <button id="nextMonth">Mese successivo</button>
+    <div class="title"><strong>B&B IL BORGO</strong> - Gestione Prenotazioni</div>
+    <div style="text-align: right; margin-bottom: 15px;">
+      <button onclick="addNewBooking()" class="save-btn" style="margin: 0;">+ Nuova Prenotazione</button>
     </div>
-    <div class="calendar" id="calendar"></div>
-    <div class="details" id="details" style="display: none;">
-      <h2>Dettagli prenotazione</h2>
-      <div>
-        <span class="check-label">CHECK-IN</span>
-        <input type="datetime-local" id="checkIn">
-      </div>
-      <div>
-        <span class="check-label">CHECK-OUT</span>
-        <input type="datetime-local" id="checkOut">
-      </div>
-      <select id="camera">
-        <option value="1">Camera 1</option>
-        <option value="2">Camera 2</option>
-        <option value="3">Camera 3</option>
-        <option value="4">Camera 4</option>
-      </select>
-      <select id="numeroPersone">
-        <option value="1">1 persona</option>
-        <option value="2">2 persone</option>
-      </select>
-      <select id="letto">
-        <option value="matrimoniale">Matrimoniale</option>
-        <option value="singoli">Due singoli</option>
-      </select>
-      
-      <div class="services-group">
-        <h3>Servizi aggiuntivi:</h3>
-        <div class="service-item">
-          <input type="checkbox" id="idromassaggio" value="idromassaggio">
-          <label for="idromassaggio">Idromassaggio</label>
-        </div>
-        <div class="service-item">
-          <input type="checkbox" id="wifi" value="wifi">
-          <label for="wifi">Wi-Fi</label>
-        </div>
-        <div class="service-item">
-          <input type="checkbox" id="riscaldamento" value="riscaldamento">
-          <label for="riscaldamento">Riscaldamento</label>
-        </div>
-      </div>
-
-      <button id="saveDetails">Salva prenotazione</button>
-      <div id="error" class="error"></div>
-    </div>
-
     <div class="filters">
-      <select id="filterMonth">
-        <option value="">Tutti i mesi</option>
-        <option value="current">Mese corrente</option>
-        <option value="next">Prossimo mese</option>
-        <option value="past">Prenotazioni passate</option>
-      </select>
-      <select id="filterCamera">
-        <option value="">Tutte le camere</option>
-        <option value="1">Camera 1</option>
-        <option value="2">Camera 2</option>
-        <option value="3">Camera 3</option>
-        <option value="4">Camera 4</option>
-      </select>
-      <select id="filterYear">
-        <option value="">Tutti gli anni</option>
-      </select>
+      <div class="filter-group">
+        <label for="filterCamera">Camera:</label>
+        <select id="filterCamera">
+          <option value="">Tutte</option>
+          <option value="1">Camera 1</option>
+          <option value="2">Camera 2</option>
+          <option value="3">Camera 3</option>
+          <option value="4">Camera 4</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="filterMese">Mese:</label>
+        <select id="filterMese">
+          <option value="">Tutti</option>
+          <option value="0">Gennaio</option>
+          <option value="1">Febbraio</option>
+          <option value="2">Marzo</option>
+          <option value="3">Aprile</option>
+          <option value="4">Maggio</option>
+          <option value="5">Giugno</option>
+          <option value="6">Luglio</option>
+          <option value="7">Agosto</option>
+          <option value="8">Settembre</option>
+          <option value="9">Ottobre</option>
+          <option value="10">Novembre</option>
+          <option value="11">Dicembre</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="filterNome">Nome ospite:</label>
+        <input type="text" id="filterNome" placeholder="Cerca per nome...">
+      </div>
+      
+      <button onclick="resetFilters()" class="reset-btn">Reset Filtri</button>
     </div>
 
-    <div class="reservations">
-      <h2>Prenotazioni</h2>
-      <div id="reservationsList"></div>
+    <div id="calendar"></div>
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color" style="background: #4CAF50"></div>
+        <span>Camera 1</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #2196F3"></div>
+        <span>Camera 2</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #9C27B0"></div>
+        <span>Camera 3</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #FF9800"></div>
+        <span>Camera 4</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #FF0000"></div>
+        <span>Festività</span>
+      </div>
+    </div>
+
+    <div class="bookings-list">
+      <h3>Lista Prenotazioni Attive</h3>
+      <div id="bookingsList"></div>
     </div>
   </div>
 
-  <script>
-    const calendar = document.getElementById('calendar');
-    const currentMonthLabel = document.getElementById('currentMonth');
-    const details = document.getElementById('details');
-    const checkInInput = document.getElementById('checkIn');
-    const checkOutInput = document.getElementById('checkOut');
-    const errorDiv = document.getElementById('error');
-    const reservationsList = document.getElementById('reservationsList');
-    
-    let selectedDate = null;
-    let currentDate = new Date();
-    const reservations = [];
-    const holidays = [
-      { month: 0, day: 1, name: "Capodanno" },
-      { month: 0, day: 6, name: "Epifania" },
-      { month: 3, day: 25, name: "Liberazione" },
-      { month: 4, day: 1, name: "Festa del Lavoro" },
-      { month: 5, day: 2, name: "Festa della Repubblica" },
-      { month: 7, day: 15, name: "Assunzione di Maria" },
-      { month: 10, day: 1, name: "Tutti i Santi" },
-      { month: 11, day: 8, name: "Immacolata Concezione" },
-      { month: 11, day: 25, name: "Natale" },
-      { month: 11, day: 26, name: "Santo Stefano" }
-    ];
+  <!-- Modal per prenotazione -->
+  <div id="bookingModal" class="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Nuova Prenotazione</h2>
+      <div class="form-group">
+        <label>Data Check-in</label>
+        <input type="date" id="checkIn">
+      </div>
+      <div class="form-group">
+        <label>Ora Check-in</label>
+        <input type="time" id="checkInTime" value="14:00">
+      </div>
+      <div class="form-group">
+        <label>Data Check-out</label>
+        <input type="date" id="checkOut">
+      </div>
+      <div class="form-group">
+        <label>Ora Check-out</label>
+        <input type="time" id="checkOutTime" value="10:00">
+      </div>
+      <div class="form-group">
+        <label>Camera</label>
+        <select id="camera">
+          <option value="1">Camera 1</option>
+          <option value="2">Camera 2</option>
+          <option value="3">Camera 3</option>
+          <option value="4">Camera 4</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Numero persone</label>
+        <select id="numeroPersone">
+          <option value="1">1 persona</option>
+          <option value="2">2 persone</option>
+          <option value="3">3 persone</option>
+          <option value="4">4 persone</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tipo letto</label>
+        <select id="letto">
+          <option value="matrimoniale">Matrimoniale</option>
+          <option value="singoli">Due singoli</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Nome ospite</label>
+        <input type="text" id="nomeOspite">
+      </div>
+      <div class="form-group">
+        <label>Note</label>
+        <textarea id="note" placeholder="Inserisci eventuali note..."></textarea>
+      </div>
+      <div id="errorMessage" class="error"></div>
+      <div class="buttons">
+        <button class="delete-btn" id="deleteBtn" onclick="deleteBooking()">Elimina</button>
+        <button class="cancel-btn" onclick="closeModal()">Annulla</button>
+        <button class="save-btn" onclick="saveBooking()">Salva</button>
+        <button class="save-btn" onclick="exportToCalendar()">Esporta nel Calendario</button>
+      </div>
+    </div>
+  </div>
 
-    function updateCalendar() {
-      calendar.innerHTML = '';
-      const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-      const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-
-      currentMonthLabel.textContent = firstDayOfMonth
-        .toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })
-        .toUpperCase();
-
-      let startDay = firstDayOfMonth.getDay() === 0 ? 6 : firstDayOfMonth.getDay() - 1;
-
-      for (let i = 0; i < startDay; i++) {
-        const emptyCell = document.createElement('div');
-        calendar.appendChild(emptyCell);
-      }
-
-      for (let day = 1; day <= lastDayOfMonth.getDate(); day++) {
-        const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-        const dayElement = document.createElement('div');
-        dayElement.textContent = day;
-        dayElement.classList.add('day');
-        
-        if (date.getDay() === 0 || date.getDay() === 6) {
-          dayElement.classList.add('weekend');
-        }
-        
-        if (holidays.some(holiday => 
-          holiday.month === date.getMonth() && holiday.day === day
-        )) {
-          dayElement.classList.add('holiday');
-        }
-        
-        if (selectedDate && date.toDateString() === selectedDate.toDateString()) {
-          dayElement.classList.add('selected');
-        }
-
-        dayElement.addEventListener('click', () => selectDate(date));
-        calendar.appendChild(dayElement);
-      }
-    }
-
-    function selectDate(date) {
-      selectedDate = date;
-      updateCalendar();
-      details.style.display = 'block';
-      checkInInput.value = date.toISOString().slice(0, 16);
-      
-      const nextDay = new Date(date);
-      nextDay.setDate(nextDay.getDate() + 1);
-      checkOutInput.value = nextDay.toISOString().slice(0, 16);
-    }
-
-    function getSelectedServices() {
-      return ['idromassaggio', 'wifi', 'riscaldamento']
-        .filter(service => document.getElementById(service).checked);
-    }
-
-    function saveReservation() {
-      const checkIn = new Date(checkInInput.value);
-      const checkOut = new Date(checkOutInput.value);
-      const camera = document.getElementById('camera').value;
-      const numeroPersone = document.getElementById('numeroPersone').value;
-      const letto = document.getElementById('letto').value;
-      const servizi = getSelectedServices();
-
-      if (checkIn >= checkOut) {
-        errorDiv.textContent = 'Il check-out deve essere successivo al check-in.';
-        return;
-      }
-
-      const overlappingReservation = reservations.some(res =>
-        res.camera === camera &&
-        (
-          (checkIn >= res.checkIn && checkIn < res.checkOut) ||
-          (checkOut > res.checkIn && checkOut <= res.checkOut) ||
-          (checkIn <= res.checkIn && checkOut >= res.checkOut)
-        )
-      );
-
-      if (overlappingReservation) {
-        errorDiv.textContent = 'La camera è già prenotata nel periodo selezionato.';
-        return;
-      }
-
-      reservations.push({ checkIn, checkOut, camera, numeroPersone, letto, servizi });
-      updateReservations();
-      details.style.display = 'none';
-      errorDiv.textContent = '';
-    }
-
-    function updateReservations() {
-      reservationsList.innerHTML = '';
-      const selectedCamera = document.getElementById('filterCamera').value;
-      const selectedMonth = document.getElementById('filterMonth').value;
-      const selectedYear = document.getElementById('filterYear').value;
-
-      const filteredReservations = reservations.filter(res => {
-        if (selectedCamera && res.camera !== selectedCamera) return false;
-        
-        if (selectedMonth) {
-          const now = new Date();
-          switch(selectedMonth) {
-            case 'current':
-              return res.checkIn.getMonth() === now.getMonth() &&
-                     res.checkIn.getFullYear() === now.getFullYear();
-            case 'next':
-              const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1);
-              return res.checkIn.getMonth() === nextMonth.getMonth() &&
-                     res.checkIn.getFullYear() === nextMonth.getFullYear();
-            case 'past':
-              return res.checkIn < now;
-          }
-        }
-
-        if (selectedYear && res.checkIn.getFullYear().toString() !== selectedYear) return false;
-        
-        return true;
-      });
-
-      filteredReservations.forEach(res => {
-        const resDiv = document.createElement('div');
-        resDiv.classList.add('reservation');
-        resDiv.innerHTML = `
-          <strong>Camera:</strong> ${res.camera}<br>
-          <strong>Check-in:</strong> ${res.checkIn.toLocaleString('it-IT')}<br>
-          <strong>Check-out:</strong> ${res.checkOut.toLocaleString('it-IT')}<br>
-          <strong>Persone:</strong> ${res.numeroPersone}<br>
-          <strong>Letto:</strong> ${res.letto}<br>
-          <strong>Servizi:</strong> ${res.servizi.join(', ') || 'Nessun servizio aggiuntivo'}
-        `;
-        reservationsList.appendChild(resDiv);
-      });
-    }
-
-    document.getElementById('prevMonth').addEventListener('click', () => {
-      currentDate.setMonth(currentDate.getMonth() - 1);
-      updateCalendar();
-    });
-
-    document.getElementById('nextMonth').addEventListener('click', () => {
-      currentDate.setMonth(currentDate.getMonth() + 1);
-      updateCalendar();
-    });
-
-    document.getElementById('saveDetails').addEventListener('click', saveReservation);
-    document.getElementById('filterCamera').addEventListener('change', updateReservations);
-    document.getElementById('filterMonth').addEventListener('change', updateReservations);
-    document.getElementById('filterYear').addEventListener('change', updateReservations);
-
-    updateCalendar();
-  </script>
 </body>
 </html>
